@@ -1,4 +1,4 @@
-# organizer-api
+# organizer
 
 This is a REST API developed using python-flask module.
 
