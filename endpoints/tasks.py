@@ -1,7 +1,7 @@
-from flask import Flask, jsonify, abort, make_response, request
+from flask import Flask, jsonify, abort, make_response, request, Blueprint
 import uuid
 
-app = Flask(__name__)
+tasks_api = Blueprint('tasks_api', __name__)
 
 # Define the tasks here
 tasks = [
@@ -19,18 +19,17 @@ tasks = [
     }
 ]
 
-
-@app.route("/")
+@tasks_api.route("/")
 def home():
     return "Hello! World"
 
 
-@app.route('/tasks', methods=['GET'])
+@tasks_api.route('/tasks', methods=['GET'])
 def get_tasks():
     return jsonify({'tasks': tasks})
 
 
-@app.route("/tasks/<task_id>", methods=['GET'])
+@tasks_api.route("/tasks/<task_id>", methods=['GET'])
 def get_task(task_id):
     requested_task = None
     for task in tasks:
@@ -42,7 +41,7 @@ def get_task(task_id):
         return make_response(jsonify({'task': requested_task}), 200)
 
 
-@app.route('/tasks', methods=['POST'])
+@tasks_api.route('/tasks', methods=['POST'])
 def create_task():
     if not request.json or not 'title' in request.json:
         abort(403)
@@ -57,7 +56,7 @@ def create_task():
         return make_response(jsonify({'tasks': tasks}), 201)
 
 
-@app.route("/tasks/<task_id>", methods=['PUT', 'POST'])
+@tasks_api.route("/tasks/<task_id>", methods=['PUT', 'POST'])
 def update_task(task_id):
     if not request.json or not 'title' in request.json:
         abort(403)
@@ -72,7 +71,7 @@ def update_task(task_id):
         return make_response(jsonify({'task': requested_task}), 201)
 
 
-@app.route("/tasks/<task_id>", methods=['DELETE'])
+@tasks_api.route("/tasks/<task_id>", methods=['DELETE'])
 def delete_task(task_id):
     requested_task = None
     for task in tasks:
@@ -84,11 +83,6 @@ def delete_task(task_id):
         tasks.remove(requested_task)
         return jsonify({'Result': True})
 
-
-
-@app.errorhandler(404)
+@tasks_api.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error':'not found'}), 404)
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5053)
